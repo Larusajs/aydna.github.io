@@ -145,19 +145,24 @@
 
       <main class="content card">
         <section id="abstract">
-          <h2>Abstract</h2>
-          <p>
-            We present a practical pipeline for fine-tuning open-source video diffusion transformers to synthesize cinematic scenes for television and film production from small datasets. The proposed two-stage process decouples visual style learning from motion generation. In the first stage, Low-Rank Adaptation (LoRA) modules are integrated into the cross-attention layers of the Wan2.1 I2V-14B model to adapt its visual representations using a compact dataset of short clips from <em>Ay Yapım</em>'s historical television film <em>El Turco</em>. This enables efficient domain transfer within hours on a single GPU. In the second stage, the fine-tuned model produces stylistically consistent keyframes that preserve costume, lighting, and color grading, which are then temporally expanded into coherent 720p sequences through the model's video decoder.
-          </p>
-          <p>
-            We further apply lightweight parallelization and sequence partitioning strategies to accelerate inference without quality degradation. Quantitative and qualitative evaluations using FVD, CLIP-SIM, and LPIPS metrics, supported by a small expert user study, demonstrate measurable improvements in cinematic fidelity and temporal stability over the base model. The complete training and inference pipeline is released to support reproducibility and adaptation across cinematic domains.
-          </p>
-          <div class="kpis">
-            <div class="k"><div class="n">~40</div><div>Short Clips</div></div>
-            <div class="k"><div class="n">33</div><div>Frame Windows</div></div>
-            <div class="k"><div class="n">720p</div><div>Output</div></div>
-            <div class="k"><div class="n">~2×</div><div>FSDP Speedup</div></div>
-          </div>
+            <h2>Abstract</h2>
+            <p>
+                We present a practical pipeline for fine-tuning open-source video diffusion transformers to synthesize cinematic scenes for television and film production from small datasets. The proposed two-stage process decouples visual style learning from motion generation. In the first stage, Low-Rank Adaptation (LoRA) modules are integrated into the cross-attention layers of the Wan2.1 I2V-14B model to adapt its visual representations using a compact dataset of short clips from Ay Yapım's historical television film El Turco. This enables efficient domain transfer within hours on a single GPU. In the second stage, the fine-tuned model produces stylistically consistent keyframes that preserve costume, lighting, and color grading, which are then temporally expanded into coherent 720p sequences through the model's video decoder.
+            </p>
+            <p>
+                We further apply lightweight parallelization and sequence partitioning strategies to accelerate inference without quality degradation. Quantitative and qualitative evaluations using FVD, CLIP-SIM, and LPIPS metrics, supported by a small expert user study, demonstrate measurable improvements in cinematic fidelity and temporal stability over the base model. The complete training and inference pipeline is released to support reproducibility and adaptation across cinematic domains.
+            </p>
+            
+            <div class="index-terms">
+                <strong>Index Terms—</strong> video generation, image-to-video, diffusion transformer, LoRA, fine-tuning, cinematic scene synthesis, multi-GPU inference, fully sharded data parallelism, computational efficiency
+            </div>
+        
+            <div class="kpis">
+                <div class="k"><div class="n">~40</div><div>Short Clips</div></div>
+                <div class="k"><div class="n">33</div><div>Frame Windows</div></div>
+                <div class="k"><div class="n">720p</div><div>Output</div></div>
+                <div class="k"><div class="n">~2×</div><div>FSDP Speedup</div></div>
+            </div>
         </section>
 
         <section id="intro">
