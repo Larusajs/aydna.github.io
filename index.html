@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fine-Tuning Open Video Generators for Cinematic Scene Synthesis</title>
-  <meta name="description" content="A small-data LoRA pipeline on Wan2.1 I2V for cinematic scene synthesis." />
+  <title>Fine-Tuning Open Video Generators for Cinematic Scene Synthesis: A Small-Data Pipeline with LoRA and Wan2.1 I2V</title>
+  <meta name="description" content="A practical pipeline for fine-tuning open-source video diffusion transformers to synthesize cinematic scenes from small datasets using LoRA and Wan2.1 I2V." />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -77,6 +77,10 @@
     .footer{margin:40px 0 20px;color:var(--muted);font-size:14px;text-align:center}
     .note{border-left:3px solid var(--accent);padding:8px 12px;background:linear-gradient(180deg,rgba(255,209,102,.08),rgba(0,0,0,0));border-radius:10px}
     .equation{background:var(--code);padding:16px;border-radius:8px;margin:12px 0;text-align:center;border:1px solid var(--border)}
+    .index-terms{background:var(--code);padding:14px;border-radius:8px;border-left:3px solid var(--brand);margin:16px 0;font-size:14px;color:var(--muted)}
+    .prompt-box{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#001018;padding:16px;border-radius:12px;margin:16px 0;font-weight:600}
+    .algorithm{background:var(--code);padding:20px;border-radius:12px;border:1px solid var(--border);margin:16px 0}
+    .algorithm-title{font-weight:600;margin-bottom:10px;color:var(--brand)}
     @media (max-width: 980px){
       .hero{grid-template-columns:1fr}
       .grid{grid-template-columns:1fr}
@@ -91,34 +95,35 @@
         <span class="badge">Technical Report · October 2025 · DOI: 10.5281/zenodo.17370356</span>
         <h1 class="title">Fine-Tuning Open Video Generators for Cinematic Scene Synthesis</h1>
         <div class="subtitle">A Small-Data Pipeline with LoRA and Wan2.1 I2V</div>
+        
         <div class="authors">
-          <span class="author">Kerem Çatay</span><span class="affil"> · AI Yapım, Ay Yapım</span>
+          <span class="author">1st Kerem Çatay</span><span class="affil"> · AI Yapım, Ay Yapım</span>
         </div>
         <div class="authors">
-          <span class="author">Sedat Bin Vedat</span><span class="affil"> · AI Yapım, Hagia Labs</span>
+          <span class="author">2nd Sedat Bin Vedat</span><span class="affil"> · AI Yapım, Hagia Labs</span>
         </div>
         <div class="authors">
-          <span class="author">Meftun Akarsu</span><span class="affil"> · AI Engineer, Hagia Labs</span>
+          <span class="author">3rd Meftun Akarsu</span><span class="affil"> · AI Engineer, Hagia Labs</span>
         </div>
         <div class="authors">
-          <span class="author">Enes Kutay Yarkan</span><span class="affil"> · Full‑Stack Engineer, Hagia Labs</span>
+          <span class="author">4th Enes Kutay Yarkan</span><span class="affil"> · Full Stack Engineer, Hagia Labs</span>
         </div>
         <div class="authors">
-          <span class="author">İlke Şentürk</span><span class="affil"> · Chief Creator, Hagia Labs</span>
+          <span class="author">5th İlke Şentürk</span><span class="affil"> · Chief Creator, Hagia Labs</span>
         </div>
         <div class="authors">
-          <span class="author">Arda Sar</span><span class="affil"> · Creative AI Technologist</span>
+          <span class="author">6th Arda Sar</span><span class="affil"> · Creative AI Technologist</span>
         </div>
         <div class="authors">
-          <span class="author">Dafne Ekşioğlu</span><span class="affil"> · Ay Yapım</span>
+          <span class="author">7th Dafne Ekşioğlu</span><span class="affil"> · Ay Yapım</span>
         </div>
         <div class="authors">
-          <span class="author">Meltem Vargı</span><span class="affil"> · Ay Yapım</span>
+          <span class="author">8th Meltem Vargı</span><span class="affil"> · Ay Yapım</span>
         </div>
 
         <div class="cta">
           <a class="btn primary" href="#abstract">Read Abstract</a>
-          <a class="btn" href="#code">Pipeline & Code</a>
+          <a class="btn" href="#method">Methodology</a>
           <a class="btn" href="#results">Results</a>
           <a class="btn" href="#bibtex">Cite</a>
         </div>
@@ -138,31 +143,36 @@
         <a href="#related">2. Background & Related Work</a>
         <a href="#method">3. Methodology</a>
         <a href="#results">4. Results & Analysis</a>
-        <a href="#conclusion">5. Conclusion & Future Work</a>
+        <a href="#conclusion">5. Conclusion</a>
+        <a href="#future">6. Future Work</a>
         <a href="#ethics">Disclosure & Ethics</a>
         <a href="#bibtex">BibTeX</a>
       </nav>
 
       <main class="content card">
         <section id="abstract">
-            <h2>Abstract</h2>
-            <p>
-                We present a practical pipeline for fine-tuning open-source video diffusion transformers to synthesize cinematic scenes for television and film production from small datasets. The proposed two-stage process decouples visual style learning from motion generation. In the first stage, Low-Rank Adaptation (LoRA) modules are integrated into the cross-attention layers of the Wan2.1 I2V-14B model to adapt its visual representations using a compact dataset of short clips from Ay Yapım's historical television film El Turco. This enables efficient domain transfer within hours on a single GPU. In the second stage, the fine-tuned model produces stylistically consistent keyframes that preserve costume, lighting, and color grading, which are then temporally expanded into coherent 720p sequences through the model's video decoder.
-            </p>
-            <p>
-                We further apply lightweight parallelization and sequence partitioning strategies to accelerate inference without quality degradation. Quantitative and qualitative evaluations using FVD, CLIP-SIM, and LPIPS metrics, supported by a small expert user study, demonstrate measurable improvements in cinematic fidelity and temporal stability over the base model. The complete training and inference pipeline is released to support reproducibility and adaptation across cinematic domains.
-            </p>
-            
-            <div class="index-terms">
-                <strong>Index Terms—</strong> video generation, image-to-video, diffusion transformer, LoRA, fine-tuning, cinematic scene synthesis, multi-GPU inference, fully sharded data parallelism, computational efficiency
-            </div>
-        
-            <div class="kpis">
-                <div class="k"><div class="n">~40</div><div>Short Clips</div></div>
-                <div class="k"><div class="n">33</div><div>Frame Windows</div></div>
-                <div class="k"><div class="n">720p</div><div>Output</div></div>
-                <div class="k"><div class="n">~2×</div><div>FSDP Speedup</div></div>
-            </div>
+          <h2>Abstract</h2>
+          <p>
+            We present a practical pipeline for fine-tuning open-source video diffusion transformers to synthesize cinematic scenes for television and film production from small datasets. The proposed two-stage process decouples visual style learning from motion generation. In the first stage, Low-Rank Adaptation (LoRA) modules are integrated into the cross-attention layers of the Wan2.1 I2V-14B model to adapt its visual representations using a compact dataset of short clips from Ay Yapım's historical television film El Turco. This enables efficient domain transfer within hours on a single GPU. In the second stage, the fine-tuned model produces stylistically consistent keyframes that preserve costume, lighting, and color grading, which are then temporally expanded into coherent 720p sequences through the model's video decoder.
+          </p>
+          <p>
+            We further apply lightweight parallelization and sequence partitioning strategies to accelerate inference without quality degradation. Quantitative and qualitative evaluations using FVD, CLIP-SIM, and LPIPS metrics, supported by a small expert user study, demonstrate measurable improvements in cinematic fidelity and temporal stability over the base model. The complete training and inference pipeline is released to support reproducibility and adaptation across cinematic domains.
+          </p>
+          
+          <div class="index-terms">
+            <strong>Index Terms—</strong> video generation, image-to-video, diffusion transformer, LoRA, fine-tuning, cinematic scene synthesis, multi-GPU inference, fully sharded data parallelism, computational efficiency
+          </div>
+
+          <div class="prompt-box">
+            "A medieval cavalry unit advances through atmospheric fog at dawn. Soldiers wear ornate chainmail and pointed helmets. Cinematic lighting, shallow depth of field, historical war scene, torch-lit ambiance."
+          </div>
+
+          <div class="kpis">
+            <div class="k"><div class="n">~40</div><div>Short Clips</div></div>
+            <div class="k"><div class="n">33</div><div>Frame Windows</div></div>
+            <div class="k"><div class="n">720p</div><div>Output</div></div>
+            <div class="k"><div class="n">~2×</div><div>FSDP Speedup</div></div>
+          </div>
         </section>
 
         <section id="intro">
@@ -173,6 +183,13 @@
           <p>
             State-of-the-art models rely on vast, domain-diverse datasets and compute infrastructures that are out of reach for most researchers. Moreover, existing open models are generic: they reproduce content well, but fail to replicate the film grammar—the continuity of camera movement, the balance between diegetic and artificial lighting, or the consistency of costume and tone. This work introduces a practical and open pipeline that allows small teams to adapt a large video diffusion model to a specific film aesthetic using limited data and commodity hardware.
           </p>
+          <p>
+            We fine-tune Wan2.1 I2V-14B, an image-to-video model with 14 billion parameters, using Low-Rank Adaptation (LoRA) modules injected into its attention layers. LoRA modifies less than 1% of the model's parameters, enabling domain adaptation on a single GPU without retraining the full backbone. Our target domain is the historical television film El Turco, chosen for its strong visual identity: torch-lit battlefields, dark costumes, and atmospheric fog. We use roughly 40 short clips (2–5 seconds each) and design a training loop optimized for data efficiency and stability.
+          </p>
+
+          <div class="note">
+            <strong>Disclosure and Ethical Statement.</strong> This research was conducted by the Hagia AI Research Collective in collaboration with Ay Yapım Creative Technologies. All video material originates from publicly released segments of Ay Yapım's historical television film El Turco and was used strictly for non-commercial research and evaluation purposes under fair-use principles. The curated dataset will not be redistributed; instead, frame-level hashes and extraction scripts are provided to enable reproducibility while respecting the intellectual property rights of the content owner.
+          </div>
         </section>
 
         <section id="related">
@@ -180,13 +197,19 @@
           
           <h3>2.1 Diffusion-Transformer Video Models</h3>
           <p>
-            Diffusion probabilistic models have rapidly become the dominant framework for generative modeling, extending from still-image synthesis to video and 3D generation. These models learn to reverse a gradual noising process, progressively denoising latent representations into coherent outputs.
+            Diffusion probabilistic models [1, 2] have rapidly become the dominant framework for generative modeling, extending from still-image synthesis to video and 3D generation. These models learn to reverse a gradual noising process, progressively denoising latent representations into coherent outputs.
           </p>
           <p>
             Text-conditioned variants such as Stable Diffusion and Imagen demonstrated that large transformer-based encoders combined with latent diffusion can synthesize visually consistent imagery with strong semantic alignment. To model temporal structure, diffusion has been extended into the video domain through architectures that jointly capture spatial and temporal dependencies.
           </p>
           <p>
-            Recent <em>video diffusion transformers</em> such as VideoCrafter, ModelScope-T2V, and Wan2.x integrate temporal self-attention and multi-frame conditioning, enabling coherent motion generation across tens of frames. Wan2.1, in particular, couples a frozen Vision Transformer encoder for spatial priors with a temporal transformer decoder that performs cross-attention across text and motion embeddings.
+            Recent video diffusion transformers such as VideoCrafter, ModelScope-T2V, and Wan2.x integrate temporal self-attention and multi-frame conditioning, enabling coherent motion generation across tens of frames. Wan2.1, in particular, couples a frozen Vision Transformer encoder for spatial priors with a temporal transformer decoder that performs cross-attention across text and motion embeddings.
+          </p>
+          <p>
+            This hybrid architecture achieves high temporal stability and longer sequence length compared with classical UNet-based designs. Nevertheless, open-source systems are still limited by generic training data—primarily short web videos lacking cinematic composition, lighting direction, and camera choreography.
+          </p>
+          <p>
+            In contrast, closed commercial systems such as Runway Gen-2, Pika 1.5, and Sora exhibit superior realism but remain proprietary. This motivates open research into domain-specific fine-tuning of video diffusion transformers for authentic cinematic production.
           </p>
 
           <h3>2.2 Parameter-Efficient Fine-Tuning</h3>
@@ -194,21 +217,24 @@
             Fine-tuning large diffusion models from scratch is computationally expensive, often requiring hundreds of gigabytes of memory. To address this, Parameter-Efficient Fine-Tuning (PEFT) techniques introduce small, trainable modules that adapt pretrained weights while keeping the backbone frozen.
           </p>
           <p>
-            Among these, Low-Rank Adaptation (LoRA) has emerged as a practical and widely adopted method. LoRA factorizes the parameter update ΔW into two low-rank matrices A and B such that:
+            Among these, Low-Rank Adaptation (LoRA) [3] has emerged as a practical and widely adopted method. LoRA factorizes the parameter update ΔW into two low-rank matrices A and B such that:
           </p>
           <div class="equation">
             ΔW = AB<sup>⊤</sup>
           </div>
           <p>
-            learning only a few additional parameters while preserving the representational power of the base model. This allows multi-billion-parameter diffusion transformers to be fine-tuned on a single modern GPU.
+            learning only a few additional parameters while preserving the representational power of the base model. This allows multi-billion-parameter diffusion transformers to be fine-tuned on a single modern GPU. LoRA has been successfully applied in image personalization (DreamBooth LoRA) and style adaptation for text-to-image diffusion. In our context, inserting LoRA modules into cross-attention layers of both spatial (encoder) and temporal (decoder) blocks enables style and motion adaptation without full retraining.
           </p>
 
           <h3>2.3 Cinematic Domain Adaptation</h3>
           <p>
-            Most generative-AI research in cinematography has concentrated on aesthetic transfer or frame-level composition rather than full temporal synthesis. Prior efforts explored CLIP-guided style control and color-grading emulation for still images, yet <em>video-level</em> adaptation—where camera movement, exposure, and lighting continuity must remain coherent—has received limited attention.
+            Most generative-AI research in cinematography has concentrated on aesthetic transfer or frame-level composition rather than full temporal synthesis. Prior efforts explored CLIP-guided style control and color-grading emulation for still images, yet video-level adaptation—where camera movement, exposure, and lighting continuity must remain coherent—has received limited attention.
           </p>
           <p>
             Commercial models achieve film-like results but lack reproducibility, while academic works often focus on analytic tasks such as shot segmentation or cinematography planning. Our work positions itself in this gap by providing an open, reproducible pipeline for cinematic video adaptation.
+          </p>
+          <p>
+            By fine-tuning Wan2.1 I2V-14B with LoRA on fewer than fifty short film clips, we show that a large diffusion transformer can internalize cinematic grammar color temperature consistency, lens depth, and scene rhythm—without access to massive proprietary datasets.
           </p>
         </section>
 
@@ -217,20 +243,29 @@
           
           <h3>3.1 Data Preparation</h3>
           <p>
-            To construct a compact yet representative dataset, we curated approximately 40 short cinematic clips (2-5 seconds each) from the <em>El Turco</em> television film, a historical production characterized by complex lighting, multi-camera setups, and strong narrative visuals. The selection intentionally covered a range of environments—indoor palace interiors, torch-lit battlefields, foggy landscapes, and close-up dialogue scenes—to expose the model to the stylistic variability inherent to cinematic storytelling.
+            To construct a compact yet representative dataset, we curated approximately 40 short cinematic clips (2–5 seconds each) from the El Turco television film, a historical production characterized by complex lighting, multi-camera setups, and strong narrative visuals. The selection intentionally covered a range of environments—indoor palace interiors, torch-lit battlefields, foggy landscapes, and close-up dialogue scenes—to expose the model to the stylistic variability inherent to cinematic storytelling.
           </p>
           <p>
             We decomposed each clip into frame sequences at 24 frames per second (FPS) to preserve the original film cadence. We then letterbox-aligned and resized the resulting frames to 1024×576 pixels, maintaining a 16:9 aspect ratio and preserving composition integrity during training.
           </p>
+          <p>
+            We preferred letterboxing (padding with black bars instead of cropping) over standard resizing because cropping alters focal geometry and camera balance, both of which are critical in film composition. We associated a caption file with each video, describing the scene's cinematographic context, e.g., "A cavalry unit rides through torch-lit fog, dramatic lighting, shallow depth of field."
+          </p>
+          <p>
+            Captions were refined to align with the Qwen tokenizer used by Wan2.1 and stored as JSON entries containing {video_id, frame_path, caption, lighting_tag, scene_id}. This allowed the training pipeline to pair video frames with descriptive text for conditional fine-tuning. The final dataset comprised approximately 25,000 frame–caption pairs (roughly 16 minutes of total footage).
+          </p>
+          <p>
+            This scale is small by diffusion-model standards but sufficient for style and motion adaptation when combined with LoRA parameter efficiency. We sourced all materials from publicly released footage and used exclusively for non-commercial research within the Hagia AI Research Collective.
+          </p>
 
           <div class="figure">
             <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1920&auto=format&fit=crop" alt="Cinematic Scene Synthesis from El Turco">
-            <div class="caption">Fig. 1 — Cinematic Scene Synthesis from El Turco. Our LoRA-enhanced Wan 2.1 I2V model generates temporally coherent battlefield sequences preserving costume detail, atmospheric lighting, and historical authenticity.</div>
+            <div class="caption">Figure 1: Cinematic Scene Synthesis from El Turco. Our LoRA-enhanced Wan 2.1 I2V model generates temporally coherent battlefield sequences preserving costume detail, atmospheric lighting, and historical authenticity. The fine-tuned model maintains chainmail texture, helmet geometry, and fog diffusion across frames while ensuring stable camera behavior typical of cinematic production.</div>
           </div>
 
-          <h3>3.2 Model Architecture & LoRA Injection</h3>
+          <h3>3.2 Model Architecture and Fine-Tuning Setup</h3>
           <p>
-            The base model used in this study is <strong>Wan2.1 I2V-14B</strong>, a 14-billion-parameter image-to-video diffusion transformer designed for high-fidelity temporal synthesis. Its architecture comprises:
+            The base model used in this study is Wan2.1 I2V-14B, a 14-billion-parameter image-to-video diffusion transformer designed for high-fidelity temporal synthesis. Its architecture comprises:
           </p>
           <ul>
             <li>A frozen Vision Transformer encoder for spatial feature extraction</li>
@@ -238,7 +273,13 @@
             <li>A text-conditioning module (Qwen-based) providing semantic guidance</li>
           </ul>
           <p>
-            Unlike full fine-tuning, which updates all parameters, we adopt <strong>Low-Rank Adaptation (LoRA)</strong> to inject learnable adapters into specific attention projections of both encoder and decoder. We insert LoRA modules in cross-attention layers (q,k,v projections) between blocks 4-8 of the encoder and 9-13 of the decoder—covering both appearance and motion subspaces.
+            Unlike full fine-tuning, which updates all parameters, we adopt Low-Rank Adaptation (LoRA) to inject learnable adapters into specific attention projections of both encoder and decoder. We insert LoRA modules in cross-attention layers (q,k,v projections) between blocks 4–8 of the encoder and 9–13 of the decoder—covering both appearance and motion subspaces. Each LoRA layer learns two low-rank matrices A ∈ ℝ<sup>d×r</sup> and B ∈ ℝ<sup>r×d</sup> such that:
+          </p>
+          <div class="equation">
+            ΔW = AB<sup>⊤</sup>
+          </div>
+          <p>
+            and only (A,B) are optimized.
           </p>
 
           <h3>3.3 Training Configuration</h3>
@@ -295,22 +336,107 @@
             </tbody>
           </table>
 
-          <pre><code># Training Loop for LoRA Fine-Tuning on Wan2.1 I2V-14B
-Dataset D = {(v_i, c_i)}; pretrained Wan2.1 I2V; LoRA rank r=8; lr η=3×10^-5
-Initialize LoRA {A,B} in encoder [4-8] and decoder [9-13] cross-attention
+          <div class="algorithm">
+            <div class="algorithm-title">Algorithm 1: Training Loop for LoRA Fine-Tuning on Wan2.1 I2V-14B</div>
+            <pre>1: Dataset 𝒟 = {(v_i, c_i)}; pretrained Wan2.1 I2V; LoRA rank r=8; lr η=3×10^-5
+2: Initialize LoRA {A,B} in encoder [4–8] and decoder [9–13] cross-attention
+3: for step t=1 to 4000 do
+4:     Sample (v,c) ∼ 𝒟; encode c (Qwen) → e_c
+5:     Sample 33-frame window x_0:T from v; add noise x_t = √(1-β_t)x_{t-1} + √β_t ε
+6:     Predict ε̂ = f_θ(x_t, t, e_c)
+7:     ℒ_diff = ‖ε - ε̂‖²_2; ℒ_temp = 1/(T-1) ∑‖f_θ(x_{t+1}) - f_θ(x_t)‖²_2
+8:     ℒ = ℒ_diff + λ ℒ_temp; update only (A,B) with AdamW
+9:     if validation LPIPS no-improve for 3 epochs then
+10:        break
+11:    end if
+12: end for
+13: Merge LoRA: W′ = W + AB⊤; save checkpoint</pre>
+          </div>
 
-for step t=1 to 4000 do
-    Sample (v,c) ∼ D; encode c (Qwen) → e_c
-    Sample 33-frame window x_0:T from v; add noise x_t = √(1-β_t)x_{t-1} + √β_t ε
-    Predict ε̂ = f_θ(x_t, t, e_c)
-    L_diff = ‖ε - ε̂‖²_2; L_temp = 1/(T-1) ∑‖f_θ(x_{t+1}) - f_θ(x_t)‖²_2
-    L = L_diff + λ L_temp; update only (A,B) with AdamW
-    if validation LPIPS no-improve for 3 epochs then break
-end for</code></pre>
-
-          <h3>3.4 Inference Optimization</h3>
           <p>
-            For inference, we employ the LoRA-enhanced Wan2.1 I2V model to synthesize 720p (1280×720) video sequences conditioned on a still image and a textual prompt. We achieve inference efficiency through sequence partitioning and Fully Sharded Data Parallelism (FSDP).
+            The configuration files (dataset_wan_i2v.toml, train_wan_i2v.toml) explicitly define frame buckets (33), aspect-ratio buckets (min_ar=0.5, max_ar=2.0), and DeepSpeed optimization flags. We set environmental variables NCCL_P2P_DISABLE=1 and NCCL_IB_DISABLE=1 to ensure stable intra-node communication. This setup fits within ≈46 GB VRAM per GPU and converges in ∼5 hours.
+          </p>
+
+          <h3>3.4 Appearance–Motion Decomposition</h3>
+          <p>
+            Cinematic adaptation benefits from decoupling spatial style learning from temporal motion learning. In our pipeline, the encoder's LoRA adapters primarily learn appearance features—costume texture, color grading, lighting intensity—while the decoder's adapters govern motion features, such as camera pans, zooms, and actor movement continuity. We trained the model on 33-frame temporal windows (≈1.4 s @ 24 FPS) to capture micro-motion segments. Short windows limit overfitting and allow the model to learn frame-to-frame smoothness rather than scene-level memorization.
+          </p>
+          <p>
+            The overall training objective combines standard denoising diffusion loss with temporal consistency terms:
+          </p>
+          <div class="equation">
+            ℒ_total = ℒ_diffusion + λ ℒ_temporal
+          </div>
+          <p>where</p>
+          <div class="equation">
+            ℒ_temporal = 1/(T-1) ∑‖f_θ(x_{t+1}) - f_θ(x_t)‖²_2
+          </div>
+          <p>
+            This balance enables stylistic adaptation without compromising motion realism.
+          </p>
+
+          <h3>3.5 Inference Optimization</h3>
+          <p>
+            For inference, we employ the LoRA-enhanced Wan2.1 I2V model to synthesize 720p (1280×720) video sequences conditioned on a still image and a textual prompt:
+          </p>
+
+          <pre><code>python generate.py \
+--task i2v-14B \
+--ckpt_dir ./Wan-Merged \
+--image ./keyframes/torch_scene.png \
+--prompt "torch-lit battlefield, cinematic lighting, night fog" \
+--num_frames 96 --cfg 3.8 --steps 30 \
+--resolution 1280x720 --fps 24 \
+--outdir ./generated_clips</code></pre>
+
+          <h4>Multi-GPU Parallelization</h4>
+          <p>
+            We achieve inference efficiency through sequence partitioning and Fully Sharded Data Parallelism (FSDP) [8]. We divide each 96-frame sequence into two temporal shards of 48 frames with a 4-frame overlap. We blend boundary frames using optical-flow-based cross-fading to avoid motion seams:
+          </p>
+
+          <pre><code>CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 generate.py \
+--temporal_shards 2 --shard_overlap 4 \
+--fsdp_policy transformer_blocks --mixed_precision bf16</code></pre>
+
+          <p>
+            This doubles throughput while preserving visual quality (LPIPS [9] change < 0.002).
+          </p>
+
+          <h3>3.6 LoRA Merging and Deployment</h3>
+          <p>
+            After training, LoRA adapters are merged into the base model to simplify inference. For each weight tensor W, corresponding adapter matrices (A,B) are located, multiplied, and added as:
+          </p>
+          <div class="equation">
+            W′ = W + AB<sup>⊤</sup>
+          </div>
+          <p>
+            Configuration and tokenizer files are copied into a unified directory (Wan-Merged), producing a self-contained deployment model requiring no external adapters:
+          </p>
+
+          <pre><code>python merge_lora.py \
+--base ./Wan2.1-I2V-14B-720P \
+--lora ./out_lora_elturco \
+--output ./Wan-Merged</code></pre>
+
+          <p>
+            The merged checkpoint remains compatible with the standard generate.py interface, enabling plug-and-play cinematic generation for downstream creative workflows.
+          </p>
+        </section>
+
+        <section id="results">
+          <h2>4. Results and Analysis</h2>
+          
+          <h3>4.1 Training Performance</h3>
+          <p>
+            We trained the LoRA adapters for 4,000 steps using the configuration described in Section 3.3. On Google Colab Pro with a single A100-40GB GPU, training converged in 3 hours and 12 minutes. When deployed on dual A100-80GB GPUs via RunPod with FSDP enabled, training time was reduced to 1 hour and 36 minutes, achieving approximately 2× speedup. Peak memory utilization remained under 46 GB per GPU in the dual-GPU configuration, demonstrating efficient memory scaling through FSDP [9].
+          </p>
+          <p>
+            The training loss curve exhibited stable convergence without oscillation, reaching a plateau at approximately 3,200 steps. We employed early stopping based on validation LPIPS [10] to prevent overfitting on the limited dataset. The final checkpoint achieved a validation LPIPS score of 0.142, indicating strong perceptual similarity between generated and ground-truth frames.
+          </p>
+
+          <h3>4.2 Inference Efficiency</h3>
+          <p>
+            Table II reports wall-clock generation times for 96-frame sequences (4 seconds at 24 FPS) at 720p resolution (1280×720). Single-GPU inference on an A100-80GB required 187 seconds per clip. Multi-GPU inference with temporal sharding and FSDP reduced this to 94 seconds, achieving 1.99× speedup while maintaining visual quality (LPIPS difference < 0.002 between single and multi-GPU outputs).
           </p>
 
           <table>
@@ -335,70 +461,62 @@ end for</code></pre>
             </tbody>
           </table>
 
-          <div class="note">
-            <strong>Technical Insight:</strong> We divide each 96-frame sequence into two temporal shards of 48 frames with a 4-frame overlap, blending boundary frames using optical-flow-based cross-fading to avoid motion seams.
-          </div>
-        </section>
-
-        <section id="results">
-          <h2>4. Results & Analysis</h2>
-          
-          <h3>4.1 Training Performance</h3>
+          <h3>4.3 Qualitative Analysis</h3>
           <p>
-            We trained the LoRA adapters for 4,000 steps using the configuration described in Section 3.3. On Google Colab Pro with a single A100-40GB GPU, training converged in 3 hours and 12 minutes. When deployed on dual A100-80GB GPUs via RunPod with FSDP enabled, training time was reduced to 1 hour and 36 minutes, achieving approximately 2× speedup.
+            Fig. 1 demonstrates the model's ability to maintain cinematic coherence across frames. Fig. 2 presents comprehensive visual results across diverse scene configurations, demonstrating the pipeline's capability to generate temporally coherent sequences while preserving costume detail, atmospheric lighting, and historical authenticity.
           </p>
-          <p>
-            The training loss curve exhibited stable convergence without oscillation, reaching a plateau at approximately 3,200 steps. We employed early stopping based on validation LPIPS to prevent overfitting on the limited dataset. The final checkpoint achieved a validation LPIPS score of 0.142, indicating strong perceptual similarity between generated and ground-truth frames.
-          </p>
-
-          <h3>4.2 Qualitative Analysis</h3>
           <p>
             The fine-tuned model successfully preserves:
           </p>
           <ul>
             <li><strong>Costume consistency:</strong> Chainmail texture, helmet geometry, and fabric details remain stable across camera motion and frame transitions.</li>
-            <li><strong>Lighting continuity:</strong> Torch-lit ambiance, atmospheric fog diffusion, and color temperature consistency characteristic of <em>El Turco</em>'s cinematography are maintained throughout generated sequences.</li>
+            <li><strong>Lighting continuity:</strong> Torch-lit ambiance, atmospheric fog diffusion, and color temperature consistency characteristic of El Turco's cinematography are maintained throughout generated sequences.</li>
             <li><strong>Camera behavior:</strong> Smooth pans and depth-of-field effects typical of professional film production, avoiding the erratic motion common in generic video diffusion models.</li>
             <li><strong>Historical authenticity:</strong> Period-accurate armor, weaponry, and battlefield composition reflecting the visual standards of historical television production.</li>
           </ul>
 
           <div class="figure">
             <img src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=1920&auto=format&fit=crop" alt="Comprehensive Visual Results from El Turco Fine-Tuning">
-            <div class="caption">Fig. 2 — Comprehensive Visual Results from El Turco Fine-Tuning. Generated sequences demonstrating temporal coherence and stylistic consistency across diverse scene compositions, camera angles, and lighting conditions.</div>
+            <div class="caption">Figure 2: Comprehensive Visual Results from El Turco Fine-Tuning. Generated sequences demonstrating temporal coherence and stylistic consistency across diverse scene compositions, camera angles, and lighting conditions. The figure presents 24 frames across 8 sequential rows, illustrating the model's capability to maintain cinematic quality throughout extended sequences. Each row represents a distinct scene or camera angle: close-up helmet details (rows 1–2), wide battlefield formations with atmospheric lighting (rows 3–4), dramatic single-subject shots (rows 5–6), and ensemble compositions with historical armor detail (rows 7–8). All sequences generated at 720p (1280×720) with 30 denoising steps and CFG scale 3.8, demonstrating the model's internalization of El Turco's complete visual grammar while maintaining production-quality cinematography and historical authenticity.</div>
           </div>
 
-          <h3>4.3 Expert Evaluation</h3>
           <p>
-            Compared to the base Wan 2.1 model without fine-tuning, our approach exhibited significantly improved adherence to the target aesthetic. The base model tended to generate generic medieval scenes with inconsistent lighting and modern costume elements. Our LoRA-enhanced model internalized the specific visual grammar of <em>El Turco</em>, producing outputs that domain experts rated as substantially closer to production footage in lighting, motion, and costume coherence (mean rating improvement: +1.2 on a 5-point scale, p < 0.05).
+            Compared to the base Wan 2.1 model without fine-tuning, our approach exhibited significantly improved adherence to the target aesthetic. The base model tended to generate generic medieval scenes with inconsistent lighting and modern costume elements. Our LoRA-enhanced model internalized the specific visual grammar of El Turco, producing outputs that domain experts rated as substantially closer to production footage in lighting, motion, and costume coherence (mean rating improvement: +1.2 on a 5-point scale, p < 0.05).
+          </p>
+
+          <h3>4.4 Limitations</h3>
+          <p>
+            Despite strong results, we observed occasional artifacts in rapid motion sequences (e.g., galloping cavalry), where temporal consistency degraded slightly. Additionally, the model occasionally struggled with extreme close-ups of faces, likely due to limited facial training data in our curated dataset. These limitations suggest directions for future dataset augmentation and architectural improvements.
           </p>
         </section>
 
         <section id="conclusion">
-          <h2>5. Conclusion & Future Work</h2>
+          <h2>5. Conclusion</h2>
           <p>
-            We presented a practical, reproducible pipeline for adapting large-scale video diffusion transformers to cinematic styles using limited data and accessible hardware. Building on Wan 2.1 I2V-14B, a 14-billion-parameter image-to-video diffusion transformer, we introduce parameter-efficient Low-Rank Adaptation (LoRA) modules to internalize stylistic features from short sequences of the historical television film <em>El Turco</em>. The fine-tuned model reproduces historically authentic battlefield and palace scenes while modifying less than 1% of the base parameters.
+            We presented a practical, reproducible pipeline for adapting large-scale video diffusion transformers to cinematic styles using limited data and accessible hardware. Building on Wan 2.1 I2V-14B, a 14-billion-parameter image-to-video diffusion transformer, we introduce parameter-efficient Low-Rank Adaptation (LoRA) modules to internalize stylistic features from short sequences of the historical television film El Turco. The fine-tuned model reproduces historically authentic battlefield and palace scenes while modifying less than 1% of the base parameters.
           </p>
           <p>
             Training converges in under two hours on dual A100 GPUs, and multi-GPU inference with Fully Sharded Data Parallelism (FSDP) achieves near-linear speed-up while preserving temporal coherence. Qualitative and ablation studies confirm a balanced trade-off between fidelity and efficiency. The complete open-source pipeline, including preprocessing scripts, training configurations, and inference workflows, bridges state-of-the-art video diffusion research with cinematic production—advancing algorithmic storytelling and creative direction through generative AI.
           </p>
-
-          <h3>Future Work Directions</h3>
-          <p>
-            Our pipeline demonstrates effective cinematic adaptation from limited data, yet several directions remain open:
-          </p>
-          <ul>
-            <li>Extending fine-tuning across other genres—such as science fiction or noir</li>
-            <li>Generating full scenes with more memory-efficient, long-context mechanisms</li>
-            <li>Adding spatial or storyboard guidance for finer manipulation of framing and motion</li>
-            <li>Examining data scaling and few-shot adaptation limits</li>
-            <li>Developing perceptual cinematic metrics for continuity and rhythm</li>
-          </ul>
         </section>
 
-        <section id="ethics">
-          <h2>Disclosure & Ethics</h2>
+        <section id="future">
+          <h2>6. Future Work</h2>
           <p>
-            This research was conducted by the Hagia AI Research Collective in collaboration with <em>Ay Yapım Creative Technologies</em>. All video material originates from publicly released segments of <em>Ay Yapım</em>'s historical television film <em>El Turco</em> and was used strictly for non-commercial research and evaluation purposes under fair-use principles. The curated dataset will not be redistributed; instead, frame-level hashes and extraction scripts are provided to enable reproducibility while respecting the intellectual property rights of the content owner.
+            Our pipeline demonstrates effective cinematic adaptation from limited data, yet several directions remain open. This study focuses on a single historical production, El Turco, within a narrow aesthetic range. Extending fine-tuning across other genres—such as science fiction or noir—would test the model's capacity to generalize and interpolate visual styles. The current 33-frame training and 96-frame inference windows restrict output to brief sequences; generating full scenes will require more memory-efficient, long-context mechanisms.
+          </p>
+          <p>
+            Text prompting alone offers limited directorial control. Adding spatial or storyboard guidance could enable finer manipulation of framing, lighting, and motion, aligning generative models more closely with real cinematography. Further work should also examine data scaling—training with fewer or more clips—and assess the limits of data efficiency through few-shot adaptation.
+          </p>
+          <p>
+            Comparisons with open and commercial baselines, and the development of perceptual cinematic metrics for continuity and rhythm, would better situate this work within the field. Finally, testing the pipeline in actual production workflows will clarify its creative and economic value, while transparent standards for consent and attribution remain essential as generative tools approach professional filmmaking quality.
+          </p>
+        </section>
+
+        <section id="acknowledgments">
+          <h2>Acknowledgments</h2>
+          <p>
+            The authors thank the creators and distributors of the El Turco television series for making footage publicly available for research purposes. We acknowledge Google Colab Pro and RunPod for providing affordable GPU compute resources (A100-40GB and dual A100-80GB configurations) that enabled training and inference on a limited budget. We are grateful to the open-source community behind Wan 2.1, Stable Diffusion XL, LoRA, and the DeepSpeed framework for their foundational contributions to video generation and parameter-efficient fine-tuning. Special thanks to the Hagia AI Research Collective for supporting this work and fostering collaborative research in generative AI for cinematic applications.
           </p>
         </section>
 
@@ -412,13 +530,6 @@ end for</code></pre>
   doi          = {10.5281/zenodo.17370356},
   note         = {Technical Report}
 }</pre>
-        </section>
-
-        <section>
-          <h2>Acknowledgments</h2>
-          <p>
-            The authors thank the creators and distributors of the <em>El Turco</em> television series for making footage publicly available for research purposes. We acknowledge Google Colab Pro and RunPod for providing affordable GPU compute resources (A100-40GB and dual A100-80GB configurations) that enabled training and inference on a limited budget. We are grateful to the open-source community behind Wan 2.1, Stable Diffusion XL, LoRA, and the DeepSpeed framework for their foundational contributions to video generation and parameter-efficient fine-tuning.
-          </p>
         </section>
 
         <section>
