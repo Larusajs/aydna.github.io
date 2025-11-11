@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fine-Tuning Open Video Generators for Cinematic Scene Synthesis</title>
+  <meta name="description" content="A small-data LoRA pipeline on Wan2.1 I2V for cinematic scene synthesis." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b0d10;
+      --panel: #11141a;
+      --muted: #aab2bf;
+      --text: #e8eef9;
+      --brand: #4ea1ff;
+      --brand-2:#9bffc8;
+      --border: #1c2230;
+      --accent: #ffd166;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+      --code: #0f1420;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg: #f7f9fc;
+        --panel: #ffffff;
+        --muted: #596275;
+        --text: #0e1623;
+        --brand: #004aad;
+        --brand-2:#1fbfb8;
+        --border: #e8edf5;
+        --accent: #b84dff;
+        --shadow: 0 10px 30px rgba(0,0,0,.08);
+        --code: #fafbfe;
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;line-height:1.65}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    img{max-width:100%;border-radius:12px;box-shadow:var(--shadow)}
+    code,pre{font-family:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    pre{background:var(--code);padding:16px;border-radius:12px;overflow:auto;border:1px solid var(--border)}
+    .container{max-width:1200px;margin:0 auto;padding:28px}
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-card{padding:28px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.06));font-size:12px;color:var(--muted)}
+    .title{font-size:36px;line-height:1.15;margin:10px 0 8px}
+    .subtitle{font-size:16px;color:var(--muted);margin-top:2px}
+    .authors{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
+    .author{font-weight:600}
+    .affil{color:var(--muted);font-weight:400}
+    .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.05));color:var(--text);text-decoration:none;font-weight:600}
+    .btn:hover{transform:translateY(-1px);transition:150ms ease;box-shadow:var(--shadow)}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));border-color:transparent;color:#001018}
+    .grid{display:grid;grid-template-columns:280px 1fr;gap:28px;margin-top:28px}
+    .toc{position:sticky;top:20px;align-self:start;padding:16px}
+    .toc h4{margin:0 0 10px 0;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+    .toc a{display:block;padding:6px 8px;border-radius:8px;color:var(--muted)}
+    .toc a.active{background:rgba(78,161,255,.12);color:var(--text)}
+    .content{padding:24px}
+    section{padding:22px 0;border-top:1px dashed var(--border)}
+    h2{margin:0 0 12px 0;font-size:26px;line-height:1.25}
+    h3{margin:22px 0 8px 0;font-size:20px}
+    p{margin:10px 0}
+    .figure{display:grid;gap:12px;margin:14px 0}
+    .figure .caption{font-size:14px;color:var(--muted)}
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .kpis .k{padding:14px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.05));text-align:center}
+    .k .n{font-size:22px;font-weight:800}
+    .footer{margin:40px 0 20px;color:var(--muted);font-size:14px;text-align:center}
+    .note{border-left:3px solid var(--accent);padding:8px 12px;background:linear-gradient(180deg,rgba(255,209,102,.08),rgba(0,0,0,0));border-radius:10px}
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+      .toc{position:relative;top:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <div class="hero-card card">
+        <span class="badge">Technical Report · October 2025 · DOI: 10.5281/zenodo.17370356</span>
+        <h1 class="title">Fine-Tuning Open Video Generators for Cinematic Scene Synthesis</h1>
+        <div class="subtitle">A Small-Data Pipeline with LoRA and Wan2.1 I2V</div>
+        <div class="authors">
+          <span class="author">Kerem Çatay</span><span class="affil"> · AI Yapım, Ay Yapım</span>
+        </div>
+        <div class="authors">
+          <span class="author">Sedat Bin Vedat</span><span class="affil"> · AI Yapım, Hagia Labs</span>
+        </div>
+        <div class="authors">
+          <span class="author">Meftun Akarsu</span><span class="affil"> · AI Engineer, Hagia Labs</span>
+        </div>
+        <div class="authors">
+          <span class="author">Enes Kutay Yarkan</span><span class="affil"> · Full‑Stack Engineer, Hagia Labs</span>
+        </div>
+        <div class="authors">
+          <span class="author">İlke Şentürk</span><span class="affil"> · Chief Creator, Hagia Labs</span>
+        </div>
+        <div class="authors">
+          <span class="author">Arda Sar</span><span class="affil"> · Creative AI Technologist</span>
+        </div>
+        <div class="authors">
+          <span class="author">Dafne Ekşioğlu</span><span class="affil"> · Ay Yapım</span>
+        </div>
+        <div class="authors">
+          <span class="author">Meltem Vargı</span><span class="affil"> · Ay Yapım</span>
+        </div>
+
+        <div class="cta">
+          <a class="btn primary" href="#abstract">Read Abstract</a>
+          <a class="btn" href="#code">Pipeline & Code</a>
+          <a class="btn" href="#results">Results</a>
+          <a class="btn" href="#bibtex">Cite</a>
+        </div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <picture>
+          <img src="https://images.unsplash.com/photo-1520975922203-b6ca011237a9?q=80&w=1840&auto=format&fit=crop" alt="Cinematic torch-lit battlefield style teaser">
+        </picture>
+      </div>
+    </div>
+
+    <div class="grid">
+      <nav class="toc card">
+        <h4>On this page</h4>
+        <a href="#abstract">Abstract</a>
+        <a href="#intro">1. Introduction</a>
+        <a href="#related">2. Background & Related Work</a>
+        <a href="#method">3. Methodology</a>
+        <a href="#results">4. Results & Analysis</a>
+        <a href="#conclusion">5. Conclusion & Future Work</a>
+        <a href="#ethics">Disclosure & Ethics</a>
+        <a href="#bibtex">BibTeX</a>
+      </nav>
+
+      <main class="content card">
+        <section id="abstract">
+          <h2>Abstract</h2>
+          <p>
+            We present a practical two‑stage pipeline to adapt open video diffusion transformers for <em>cinematic</em> scene synthesis using small, carefully curated datasets. Low‑Rank Adaptation (LoRA) modules are injected into cross‑attention layers of Wan2.1 I2V‑14B to learn appearance and motion priors from short clips of <em>El Turco</em>. The fine‑tuned model generates stylistically consistent keyframes which are temporally expanded into coherent 720p sequences. Quantitative metrics (FVD, CLIP‑SIM, LPIPS) and a small expert study indicate improved cinematic fidelity and temporal stability over the base model.
+          </p>
+          <div class="kpis">
+            <div class="k"><div class="n">~40</div><div>Short Clips</div></div>
+            <div class="k"><div class="n">33</div><div>Frame Windows</div></div>
+            <div class="k"><div class="n">720p</div><div>Output</div></div>
+            <div class="k"><div class="n">~2×</div><div>FSDP Speedup</div></div>
+          </div>
+        </section>
+
+        <section id="intro">
+          <h2>1. Introduction</h2>
+          <p>
+            Recent diffusion‑transformer models can produce multi‑second, text‑conditioned videos, yet <strong>cinematic quality</strong>—film‑like lighting, lens depth, camera rhythm—remains elusive without large budgets. Our goal is to enable small studios to <strong>transfer film grammar</strong> into open models using limited data and commodity hardware by leveraging parameter‑efficient LoRA fine‑tuning on Wan2.1 I2V‑14B.
+          </p>
+        </section>
+
+        <section id="related">
+          <h2>2. Background & Related Work</h2>
+          <h3>2.1 Diffusion‑Transformer Video Models</h3>
+          <p>
+            Diffusion models learn to reverse a noising process to synthesize coherent images and videos. Open systems such as VideoCrafter, ModelScope, and Wan2.x combine spatial and temporal attention for longer sequences. Commercial systems show superior realism but are proprietary; this motivates open, reproducible domain adaptation.
+          </p>
+          <h3>2.2 Parameter‑Efficient Fine‑Tuning</h3>
+          <p>
+            LoRA factorizes weight updates into low‑rank matrices and trains only a tiny subset of parameters, making fine‑tuning practical on a single GPU while preserving base model capacity.
+          </p>
+          <h3>2.3 Cinematic Domain Adaptation</h3>
+          <p>
+            Prior work focuses on still‑image style transfer or analysis tasks. We target <em>video‑level</em> adaptation: camera movement continuity, lighting consistency, and costume coherence characteristic of professional cinematography.
+          </p>
+        </section>
+
+        <section id="method">
+          <h2>3. Methodology</h2>
+          <h3>3.1 Data Preparation</h3>
+          <p>
+            We curate ~40 short clips (2–5 s, 24 FPS) from <em>El Turco</em> spanning indoor/outdoor, day/night, and shot scales. Frames are letterbox‑aligned to 1024×576 to preserve composition. Scene captions (lighting tags, shot IDs) are stored alongside frame paths for conditional training.
+          </p>
+
+          <h3>3.2 Architecture & LoRA Injection</h3>
+          <p>
+            Wan2.1 I2V‑14B comprises a frozen ViT encoder, temporal transformer decoder, and text conditioning (Qwen). We insert LoRA adapters into cross‑attention <code>q/k/v</code> projections (encoder blocks 4–8, decoder blocks 9–13) to decouple <strong>appearance</strong> (style, grading, lighting) and <strong>motion</strong> (pans, zooms, actor movement).
+          </p>
+
+          <div class="figure">
+            <img src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=1920&auto=format&fit=crop" alt="Architecture sketch placeholder">
+            <div class="caption">Fig. 1 — LoRA adapters in cross‑attention (encoder: appearance, decoder: motion). Replace image with your own diagram.</div>
+          </div>
+
+          <h3>3.3 Training Configuration</h3>
+          <pre><code># Key hyperparameters (example)
+LoRA rank r = 8; alpha = 16
+Optimizer   = AdamW (lr = 3e-5, wd = 0.01)
+Precision   = bf16, activation checkpointing on
+Temporal window = 33 frames (@24 FPS)
+Early stopping on validation LPIPS plateau
+FSDP/DeepSpeed for stability & throughput
+</code></pre>
+
+          <h3>3.4 Inference & Parallelization</h3>
+          <p>
+            We generate 96‑frame clips at 720p via image‑to‑video with CFG 3.8–4.2 and 28–32 steps. Temporal sharding (2×48 frames with 4‑frame overlap) plus FSDP yields ~2× throughput; boundaries are blended with optical‑flow cross‑fades.
+          </p>
+
+          <div class="note">
+            <strong>Tip:</strong> After training, merge LoRA into the base checkpoint for a single self‑contained deployment directory.
+          </div>
+        </section>
+
+        <section id="results">
+          <h2>4. Results & Analysis</h2>
+          <p>
+            The fine‑tuned model preserves <em>costume detail</em>, <em>torch‑lit ambience</em>, and <em>camera smoothness</em>, reducing erratic motion typical of base models. Expert ratings improved by +1.2/5 on average (p&lt;0.05). Multi‑GPU inference halves generation time for 96‑frame sequences with negligible LPIPS change (&lt;0.002).
+          </p>
+          <div class="figure">
+            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1920&auto=format&fit=crop" alt="Storyboard grid placeholder">
+            <div class="caption">Fig. 2 — Storyboard strips showing temporal consistency across shots. Replace with exported frames.</div>
+          </div>
+        </section>
+
+        <section id="conclusion">
+          <h2>5. Conclusion &amp; Future Work</h2>
+          <p>
+            We demonstrate a reproducible, small‑data pipeline that imbues open I2V models with <strong>cinematic grammar</strong> on accessible hardware. Future work: genre coverage (noir, sci‑fi), longer contexts, storyboard/spatial guidance, and perceptual metrics tailored to cinematography.
+          </p>
+        </section>
+
+        <section id="ethics">
+          <h2>Disclosure &amp; Ethics</h2>
+          <p>
+            All video material was sourced from publicly released segments of <em>El Turco</em> and used strictly for non‑commercial research and evaluation. The curated dataset is not redistributed; instead, we share frame‑hashes and extraction scripts to support reproducibility while respecting rights.
+          </p>
+        </section>
+
+        <section id="code">
+          <h2>Pipeline &amp; Code (pseudocode)</h2>
+          <pre><code># Training loop sketch (LoRA-only updates)
+for step in range(4000):
+    v, c = sample_clip_and_caption()
+    x = sample_33_frame_window(v)
+    noisy = add_noise(x, t)
+    eps_hat = wan_i2v(noisy, t, encode_text(c))
+    loss = mse(eps, eps_hat) + lambda_ * temporal_smoothness(noisy)
+    update(lora_params_only)</code></pre>
+        </section>
+
+        <section id="bibtex">
+<pre>@misc{akarsu2025cinematiclora,
+  title        = {Fine-Tuning Open Video Generators for Cinematic Scene Synthesis: A Small-Data Pipeline with LoRA and Wan2.1 I2V},
+  author       = {Çatay, Kerem and Bin Vedat, Sedat and Akarsu, Meftun and Yarkan, Enes Kutay and Şentürk, İlke and Sar, Arda and Ekşioğlu, Dafne and Vargı, Meltem},
+  year         = {2025},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.17370356},
+  note         = {Technical Report}
+}</pre>
+        </section>
+
+        <section>
+          <p class="subtitle">Questions or media requests: <a href="mailto:hello@hagialabs.ai">hello@hagialabs.ai</a></p>
+        </section>
+      </main>
+    </div>
+
+    <div class="footer">© 2025 Authors. Built for GitBook import — single-file HTML.</div>
+  </div>
+
+  <script>
+    // Smooth scroll + active TOC highlighting
+    const links = document.querySelectorAll('.toc a');
+    const sections = [...links].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+    function setActive(){
+      let idx = 0;
+      sections.forEach((s, i) => {
+        const rect = s.getBoundingClientRect();
+        if(rect.top < innerHeight * 0.33) idx = i;
+      });
+      links.forEach(l => l.classList.remove('active'));
+      (links[idx] || links[0]).classList.add('active');
+    }
+    addEventListener('scroll', setActive, { passive: true });
+    addEventListener('load', setActive);
+  </script>
+</body>
+</html>
